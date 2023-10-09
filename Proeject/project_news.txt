@@ -1,0 +1,34 @@
+CREATE CONSTRAINT NewsIDUniqueness ON (news:News) ASSERT news.id IS UNIQUE
+
+CREATE CONSTRAINT CompanyUniqueness ON (company:Company) ASSERT company.symbol IS UNIQUE
+
+CREATE CONSTRAINT DateUniqueness ON (d:Date) ASSERT d.date IS UNIQUE
+
+
+
+MERGE (c:Company {symbol: $symbol})
+ON CREATE
+  SET c.symbol = $symbol
+
+MATCH
+  (d:Date {d: $date}),
+  (c:Company {c: $symbol})
+  (n:News {id: $newsID})
+MERGE (d) -> [has:HAS] -> (n) <- [reported_by:IS_REPORTED_BY] - (c)
+
+CREATE
+  (d:Date {d: $date}),
+  (c:Company {c: $symbol})
+  (n:News {id: $newsID})
+MERGE (d) -> [has:HAS] -> (n) <- [reported_by:IS_REPORTED_BY] - (c)
+
+CREATE (n: News {author: $author,
+ author:$author,
+ id:$newsID,
+ source:$source,
+ summary:$summary,
+ symbols:$symbols,
+ url:$url})
+
+MATCH (c: Company {symbol: $symbol}) -[:HAS] -> (n: News)
+return n
